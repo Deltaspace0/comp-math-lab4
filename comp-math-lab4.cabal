@@ -28,6 +28,7 @@ library
       Model
       Model.AppEvent
       Model.AppModel
+      Model.Method
       UI
   other-modules:
       Paths_comp_math_lab4
@@ -39,10 +40,12 @@ library
   build-depends:
       base >=4.7 && <5
     , lens
+    , matrix
     , monomer
     , monomer-widgets
     , text
     , text-show
+    , vector
   default-language: Haskell2010
 
 executable comp-math-lab4-exe
@@ -58,10 +61,12 @@ executable comp-math-lab4-exe
       base >=4.7 && <5
     , comp-math-lab4
     , lens
+    , matrix
     , monomer
     , monomer-widgets
     , text
     , text-show
+    , vector
   default-language: Haskell2010
 
 test-suite comp-math-lab4-test
@@ -78,8 +83,10 @@ test-suite comp-math-lab4-test
       base >=4.7 && <5
     , comp-math-lab4
     , lens
+    , matrix
     , monomer
     , monomer-widgets
     , text
     , text-show
+    , vector
   default-language: Haskell2010

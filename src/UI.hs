@@ -3,6 +3,7 @@ module UI
     ) where
 
 import Control.Lens
+import Data.Maybe
 import Monomer
 import Monomer.Graph
 
@@ -12,33 +13,78 @@ buildUI :: UIBuilder AppModel AppEvent
 buildUI _ model = tree where
     tree = hstack_ [childSpacing_ 64]
         [ graphWithData_ points
-            [ wheelRate 2
+            [ lockX_ $ model ^. xLock
+            , lockY_ $ model ^. yLock
+            , onRightClick AppAddPoint
             ] `nodeKey` "mainGraph"
         , separatorLine
         , vstack_ [childSpacing_ 16]
-            [ hslider parameter (-2) 2
-            , button "Reset" AppResetGraph
+            [ button "Reset" AppResetGraph
+            , hgrid_ [childSpacing_ 64]
+                [ labeledCheckbox "Lock X" xLock
+                , labeledCheckbox "Lock Y" yLock
+                ]
+            , separatorLine
+            , button "Remove points" AppRemovePoints
+            , separatorLine
+            , toggleButton "Linear" showLinear
+            , toggleButton "Quadratic" showQuadratic
+            , toggleButton "Cubic" showCubic
+            , toggleButton "Power" showPower
+            , toggleButton "Exponential" showExponential
+            , toggleButton "Logarithmic" showLogarithmic
             ]
         ] `styleBasic` [padding 16]
-    points =
+    points = linear:quadratic:cubic:power:exponential:logarithmic:
         [
-            [ graphPoints $ (\x -> (x, cos $ p*x)) <$> xs
-            , graphColor red
-            ]
-        ,   [ graphPoint $ model ^. yellowPos
-            , graphColor yellow
-            , graphWidth 10
-            , graphHoverColor lightYellow
-            , graphActiveColor black
+            [ graphPoints ps
+            , graphColor black
             , graphSeparate
-            , graphOnChange $ AppYellowChange
-            ]
-        ,   [ graphPoints [(-1, 4), (0, 5), (1, 4), (0, 3)]
-            , graphColor blue
-            , graphSeparate
-            , graphFill
-            , graphFillAlpha 0.64
+            , graphOnChange AppPointChange
             ]
         ]
-    xs = [-10, -9.98..10]
-    p = model ^. parameter
+    linear = if model ^. showLinear && (not $ null linearF)
+        then
+            [ graphPoints $ (fromJust linearF) <$> xs
+            , graphColor red
+            ]
+        else []
+    quadratic = if model ^. showQuadratic && (not $ null quadF)
+        then
+            [ graphPoints $ (fromJust quadF) <$> xs
+            , graphColor orange
+            ]
+        else []
+    cubic = if model ^. showCubic && (not $ null cubicF)
+        then
+            [ graphPoints $ (fromJust cubicF) <$> xs
+            , graphColor green
+            ]
+        else []
+    power = if model ^. showPower && (not $ null powerF)
+        then
+            [ graphPoints $ (fromJust powerF) <$> xs
+            , graphColor blue
+            ]
+        else []
+    exponential = if model ^. showExponential && (not $ null expF)
+        then
+            [ graphPoints $ (fromJust expF) <$> xs
+            , graphColor violet
+            ]
+        else []
+    logarithmic = if model ^. showLogarithmic && (not $ null logF)
+        then
+            [ graphPoints $ (fromJust logF) <$> xs
+            , graphColor brown
+            ]
+        else []
+    linearF = f <$> makeLinear ps
+    quadF = f <$> makeQuadratic ps
+    cubicF = f <$> makeCubic ps
+    powerF = f <$> makePower ps
+    expF = f <$> makeExponential ps
+    logF = f <$> makeLogarithmic ps
+    f q x = (x, q x)
+    ps = model ^. dataPoints
+    xs = [-20, (-19.98)..20]
