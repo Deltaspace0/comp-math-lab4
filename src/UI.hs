@@ -173,8 +173,8 @@ buildUI _ model = tree where
     xs = [-20, (-19.98)..20]
     pointPanels = makePointPanel <$> [0..length ps-1]
     makePointPanel i = hgrid'
-        [ numericField (pointField i . _1)
-        , numericField (pointField i . _2)
+        [ numericField_ (pointField i . _1) [decimals 3]
+        , numericField_ (pointField i . _2) [decimals 3]
         ]
     pointField i = lens getter setter where
         getter = (^?! ix i) . _amDataPoints
