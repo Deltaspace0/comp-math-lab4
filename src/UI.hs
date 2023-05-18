@@ -12,7 +12,7 @@ import Model
 
 buildUI :: UIBuilder AppModel AppEvent
 buildUI _ model = tree where
-    tree = hstack_ [childSpacing_ 64]
+    tree = hstack_ [childSpacing_ 16]
         [ vstack'
             [ graphWithData_ points
                 [ lockX_ $ model ^. xLock
@@ -105,6 +105,9 @@ buildUI _ model = tree where
                         [ toggleButton "Logarithmic" showLogarithmic
                         , optionButton "Info" ILog currentInfo
                         ]
+                    , separatorLine
+                    , label "Best approximation (least SD):"
+                    , label bestApproximation
                     ]
             ]
         ] `styleBasic` [padding 16]
@@ -178,6 +181,24 @@ buildUI _ model = tree where
         setter = flip $ set $ dataPoints . ix i
     vstack' = vstack_ [childSpacing_ 16]
     hgrid' = hgrid_ [childSpacing_ 16]
+    bestApproximation = text where
+        text = if null result
+            then "???"
+            else fst $ fromJust result
+        result = foldl1 findBest approximationsWithStd
+        findBest Nothing Nothing = Nothing
+        findBest Nothing x = x
+        findBest x Nothing = x
+        findBest a@(Just (_, s1)) b@(Just (_, s2)) = res where
+            res = if abs s1 < abs s2 || isNaN s2 then a else b
+    approximationsWithStd =
+        [ ((,) "Linear" . getDeviation ps . (snd .)) <$> linearF
+        , ((,) "Quadratic" . getDeviation ps . (snd .)) <$> quadF
+        , ((,) "Cubic" . getDeviation ps . (snd .)) <$> cubicF
+        , ((,) "Power" . getDeviation ps . (snd .)) <$> powerF
+        , ((,) "Exponential" . getDeviation ps . (snd .)) <$> expF
+        , ((,) "Logarithmic" . getDeviation ps . (snd .)) <$> logF
+        ]
 
 textStd :: [(Double, Double)] -> Maybe (Double -> Double) -> Text
 textStd _ Nothing = "???"
