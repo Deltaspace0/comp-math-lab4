@@ -22,33 +22,27 @@ extractSolutions :: Either String (Matrix Double) -> [Double]
 extractSolutions (Left _) = []
 extractSolutions (Right mat) = toList $ getCol (ncols mat) mat
 
-makeLinear :: [(Double, Double)] -> Maybe (Double -> Double)
-makeLinear points = f <$> solveLinear points where
-    f (b, a) x = a*x+b
+makeLinear :: (Double, Double) -> Double -> Double
+makeLinear (b, a) x = a*x+b
 
-makeQuadratic :: [(Double, Double)] -> Maybe (Double -> Double)
-makeQuadratic points = f <$> solveQuadratic points where
-    f (c, b, a) x = a*x**2+b*x+c
+makeQuadratic :: (Double, Double, Double) -> Double -> Double
+makeQuadratic (c, b, a) x = a*x**2+b*x+c
 
-makeCubic :: [(Double, Double)] -> Maybe (Double -> Double)
-makeCubic points = f <$> solveCubic points where
-    f (d, c, b, a) x = a*x**3+b*x**2+c*x+d
+makeCubic :: (Double, Double, Double, Double) -> Double -> Double
+makeCubic (d, c, b, a) x = a*x**3+b*x**2+c*x+d
 
-makePower :: [(Double, Double)] -> Maybe (Double -> Double)
-makePower points = f <$> solvePower points where
-    f (a, b) x = a*x**b
+makePower :: (Double, Double) -> Double -> Double
+makePower (a, b) x = a*x**b
 
-makeExponential :: [(Double, Double)] -> Maybe (Double -> Double)
-makeExponential points = f <$> solveExponential points where
-    f (a, b) x = a*(exp $ b*x)
+makeExponential :: (Double, Double) -> Double -> Double
+makeExponential (a, b) x = a*(exp $ b*x)
 
-makeLogarithmic :: [(Double, Double)] -> Maybe (Double -> Double)
-makeLogarithmic points = f <$> solveLogarithmic points where
-    f (a, b) x = a+b*(log x)
+makeLogarithmic :: (Double, Double) -> Double -> Double
+makeLogarithmic (a, b) x = a+b*(log x)
 
 solveLinear :: [(Double, Double)] -> Maybe (Double, Double)
 solveLinear points = result where
-    result = if length ss < 2
+    result = if length points < 2 || length ss < 2
         then Nothing
         else Just (ss!!0, ss!!1)
     ss = extractSolutions $ rref mat
@@ -67,7 +61,7 @@ solveQuadratic
     :: [(Double, Double)]
     -> Maybe (Double, Double, Double)
 solveQuadratic points = result where
-    result = if length ss < 3
+    result = if length points < 3 || length ss < 3
         then Nothing
         else Just (ss!!0, ss!!1, ss!!2)
     ss = extractSolutions $ rref mat
@@ -90,7 +84,7 @@ solveCubic
     :: [(Double, Double)]
     -> Maybe (Double, Double, Double, Double)
 solveCubic points = result where
-    result = if length ss < 4
+    result = if length points < 4 || length ss < 4
         then Nothing
         else Just (ss!!0, ss!!1, ss!!2, ss!!3)
     ss = extractSolutions $ rref mat

@@ -3,11 +3,13 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Model.AppModel
-    ( Menu(..)
+    ( Info(..)
+    , Menu(..)
     , AppModel(..)
     , xLock
     , yLock
     , dataPoints
+    , currentInfo
     , currentMenu
     , showLinear
     , showQuadratic
@@ -20,12 +22,25 @@ module Model.AppModel
 
 import Control.Lens
 
-data Menu = MPoints | MApprox deriving (Eq, Show)
+data Info
+    = ILinear
+    | IQuad
+    | ICubic
+    | IPower
+    | IExp
+    | ILog
+    deriving (Eq, Show)
+
+data Menu
+    = MPoints
+    | MApprox
+    deriving (Eq, Show)
 
 data AppModel = AppModel
     { _amXLock :: Bool
     , _amYLock :: Bool
     , _amDataPoints :: [(Double, Double)]
+    , _amCurrentInfo :: Info
     , _amCurrentMenu :: Menu
     , _amShowLinear :: Bool
     , _amShowQuadratic :: Bool
@@ -42,6 +57,7 @@ initModel = AppModel
     { _amXLock = False
     , _amYLock = False
     , _amDataPoints = []
+    , _amCurrentInfo = ILinear
     , _amCurrentMenu = MPoints
     , _amShowLinear = False
     , _amShowQuadratic = False
