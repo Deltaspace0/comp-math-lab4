@@ -25,14 +25,33 @@ buildUI _ model = tree where
                 , labeledCheckbox "Lock Y" yLock
                 ]
             , separatorLine
-            , button "Remove points" AppRemovePoints
+            , hgrid_ [childSpacing_ 16]
+                [ optionButton "Points" MPoints currentMenu
+                , optionButton "Approximations" MApprox currentMenu
+                ]
             , separatorLine
-            , toggleButton "Linear" showLinear
-            , toggleButton "Quadratic" showQuadratic
-            , toggleButton "Cubic" showCubic
-            , toggleButton "Power" showPower
-            , toggleButton "Exponential" showExponential
-            , toggleButton "Logarithmic" showLogarithmic
+            , case model ^. currentMenu of
+                MPoints -> vstack_ [childSpacing_ 16]
+                    [ label "Add points with right mouse button"
+                    , hgrid_ [childSpacing_ 16]
+                        [ button "Remove all" AppRemovePoints
+                        , button "Remove last" AppRemoveLast
+                        ]
+                    , vscroll $ vstack_ [childSpacing_ 16] $
+                        [ hgrid_ [childSpacing_ 16]
+                            [ label "X:"
+                            , label "Y:"
+                            ]
+                        ] <> pointPanels
+                    ]
+                MApprox -> vscroll $ vstack_ [childSpacing_ 16]
+                    [ toggleButton "Linear" showLinear
+                    , toggleButton "Quadratic" showQuadratic
+                    , toggleButton "Cubic" showCubic
+                    , toggleButton "Power" showPower
+                    , toggleButton "Exponential" showExponential
+                    , toggleButton "Logarithmic" showLogarithmic
+                    ]
             ]
         ] `styleBasic` [padding 16]
     points = linear:quadratic:cubic:power:exponential:logarithmic:
@@ -88,3 +107,11 @@ buildUI _ model = tree where
     f q x = (x, q x)
     ps = model ^. dataPoints
     xs = [-20, (-19.98)..20]
+    pointPanels = makePointPanel <$> [0..length ps-1]
+    makePointPanel i = hgrid_ [childSpacing_ 16]
+        [ numericField (pointField i . _1)
+        , numericField (pointField i . _2)
+        ]
+    pointField i = lens getter setter where
+        getter = (^?! ix i) . _amDataPoints
+        setter = flip $ set $ dataPoints . ix i

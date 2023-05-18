@@ -14,6 +14,7 @@ data AppEvent
     | AppResetGraph
     | AppAddPoint (Double, Double)
     | AppRemovePoints
+    | AppRemoveLast
     | AppPointChange Int (Double, Double)
     deriving (Eq, Show)
 
@@ -23,4 +24,5 @@ handleEvent _ _ model event = case event of
     AppResetGraph -> [Message "mainGraph" GraphReset]
     AppAddPoint p -> [Model $ model & dataPoints %~ (p:)]
     AppRemovePoints -> [Model $ model & dataPoints .~ []]
+    AppRemoveLast -> [Model $ model & dataPoints %~ drop 1]
     AppPointChange i p -> [Model $ model & dataPoints . ix i .~ p]

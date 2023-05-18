@@ -3,10 +3,12 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Model.AppModel
-    ( AppModel(..)
+    ( Menu(..)
+    , AppModel(..)
     , xLock
     , yLock
     , dataPoints
+    , currentMenu
     , showLinear
     , showQuadratic
     , showCubic
@@ -18,10 +20,13 @@ module Model.AppModel
 
 import Control.Lens
 
+data Menu = MPoints | MApprox deriving (Eq, Show)
+
 data AppModel = AppModel
     { _amXLock :: Bool
     , _amYLock :: Bool
     , _amDataPoints :: [(Double, Double)]
+    , _amCurrentMenu :: Menu
     , _amShowLinear :: Bool
     , _amShowQuadratic :: Bool
     , _amShowCubic :: Bool
@@ -37,6 +42,7 @@ initModel = AppModel
     { _amXLock = False
     , _amYLock = False
     , _amDataPoints = []
+    , _amCurrentMenu = MPoints
     , _amShowLinear = False
     , _amShowQuadratic = False
     , _amShowCubic = False
